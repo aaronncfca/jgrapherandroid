@@ -16,6 +16,9 @@ import com.aaronncfca.jgrapherandroid.ui.Point;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DrawFilter;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -34,11 +37,6 @@ public class GraphPanel extends View {
 	public GraphPanel(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		// TODO Auto-generated constructor stub
-	}
-	
-	@Override
-	protected void onDraw(Canvas c) {
-		super.onDraw(c);
 	}
 	
 	// Adds deltaX and deltaY to the current offset
@@ -100,6 +98,42 @@ public class GraphPanel extends View {
 				g2.drawPolyline(fn.getValue().xArray, fn.getValue().yArray, fn.getValue().arrayLength);	
 			}
 			
+		}
+		
+		public Paint p = new Paint();
+		public Path path = new Path();
+		
+		@Override
+		protected void onDraw(Canvas c) {
+			super.onDraw(c);
+			p.setColor(0xCCCC2255);
+			c.drawRect(0, 0, getWidth(), getHeight(), p);
+			zoom = (double) getWidth() / 100 * deltaZoom;
+			offsetX = (getWidth() + deltaOffsetX) / 2;
+			offsetY = (getHeight() + deltaOffsetY) / 2;
+//			g2.setColor(new Color(.2F, .2F, .2F));
+//			drawGrid(g2);
+//			g2.setColor(new Color(.7F, .7F, .7F));
+//			if(showAxes) {
+//				drawLine(g2, convertX(0), false);
+//				drawLine(g2, convertY(0), true);
+//			}
+//			g2.setColor(new Color(.3F, .5F, .3F));
+//			showInfo(g2);
+//			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//			g2.setColor(new Color(.3F, .4F, .9F));
+			p.setColor(0x4466E0);
+			for(Map.Entry<Integer, FunctionInfo> fn
+					: functions.entrySet()) {
+				fn.getValue().Calculate(getWidth(), getHeight(),
+						offsetX, offsetY,
+						zoom);
+				for(int i = 0; i < fn.getValue().arrayLength; i++) {
+					path.lineTo(fn.getValue().xArray[i], fn.getValue().yArray[i]);
+				}
+				c.drawPath(path, p);
+				//g2.drawPolyline(fn.getValue().xArray, fn.getValue().yArray, fn.getValue().arrayLength);	
+			}
 		}
 		
 		public void AddFunction(int id, SingleVarFunction function) {

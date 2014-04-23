@@ -10,19 +10,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/abc_ab_bottom_solid_dark_holo" />
-
-        <SurfaceView
-            android:id="@+id/surfaceView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.aaronncfca.jgrapherandroid.GraphPanel
+            android:id="@+id/graphPanel1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:layout_alignParentLeft="true"
-            android:layout_below="@+id/imageView1"
-            android:layout_marginTop="28dp" />
+            android:layout_alignParentTop="true" />
+
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="38dp"
+            android:ems="10" >
+
+            <requestFocus />
+        </EditText>
+
     </RelativeLayout>
 
 </FrameLayout>

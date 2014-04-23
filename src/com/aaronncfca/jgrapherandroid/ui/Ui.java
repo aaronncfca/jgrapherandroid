@@ -40,11 +40,11 @@ public class Ui {
 	}
 	
 	public static void Graph2d(SingleVarFunction func) {
-		window.AddGraph(func.hashCode(), func);
+		//window.AddGraph(func.hashCode(), func);
 	}
 	
 	private BufferedReader inputDevice;
-	private static MainWindow window = new MainWindow();
+	//private static MainWindow window = new MainWindow();
 
 }
 
