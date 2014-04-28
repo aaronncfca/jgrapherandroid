@@ -11,7 +11,7 @@
         android:layout_height="match_parent" >
 
         <com.aaronncfca.jgrapherandroid.GraphPanel
-            android:id="@+id/graphPanel1"
+            android:id="@+id/graphPanel"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_alignParentLeft="true"
@@ -22,13 +22,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="30dp"
-            android:layout_marginRight="38dp"
-            android:ems="10" >
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="16dp"
+            android:layout_toLeftOf="@+id/gButton"
+            android:ems="10"
+            android:inputType="textNoSuggestions" >
 
             <requestFocus />
         </EditText>
+
+        <Button
+            android:id="@+id/gButton"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/editText1"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/editText1"
+            android:text="Graph" />
 
     </RelativeLayout>
 

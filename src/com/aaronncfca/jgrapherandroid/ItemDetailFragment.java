@@ -5,9 +5,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.aaronncfca.jgrapherandroid.dummy.DummyContent;
+import com.aaronncfca.jgrapherandroid.exceptions.InputException;
+import com.aaronncfca.jgrapherandroid.function.SingleVarFunction;
+import com.aaronncfca.jgrapherandroid.pieces.Piece;
+import com.aaronncfca.jgrapherandroid.ui.Processor;
 
 /**
  * A fragment representing a single Item detail screen. This fragment is either
@@ -44,6 +50,8 @@ public class ItemDetailFragment extends Fragment {
 			mItem = DummyContent.ITEM_MAP.get(getArguments().getString(
 					ARG_ITEM_ID));
 		}
+
+		
 	}
 
 	@Override
@@ -60,4 +68,5 @@ public class ItemDetailFragment extends Fragment {
 
 		return rootView;
 	}
+	
 }

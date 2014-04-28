@@ -1,10 +1,19 @@
 package com.aaronncfca.jgrapherandroid;
 
+import com.aaronncfca.jgrapherandroid.exceptions.InputException;
+import com.aaronncfca.jgrapherandroid.function.SingleVarFunction;
+import com.aaronncfca.jgrapherandroid.pieces.Piece;
+import com.aaronncfca.jgrapherandroid.ui.Processor;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 
 /**
  * An activity representing a single Item detail screen. This activity is only
@@ -44,6 +53,28 @@ public class ItemDetailActivity extends FragmentActivity {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.item_detail_container, fragment).commit();
 		}
+
+		final GraphPanel gPanel = (GraphPanel) findViewById(R.id.graphPanel);
+		final Button gBtn = (Button) findViewById(R.id.gButton);
+		final EditText gInput = (EditText) findViewById(R.id.editText1);
+		gBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Piece toReturn = null;
+				String input = null;
+				input = gInput.getText().toString();
+				try {
+					SingleVarFunction svf = new SingleVarFunction(
+							Processor.ProcessInput(input), "x");
+					gPanel.AddFunction(0, svf);
+				} catch (InputException e) {
+					e.printStackTrace();
+				}
+				System.out.println(toReturn.toString());
+			}
+			
+		});
 	}
 
 	@Override

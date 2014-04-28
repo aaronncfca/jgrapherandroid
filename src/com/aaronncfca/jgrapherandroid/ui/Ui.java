@@ -4,12 +4,18 @@ import java.util.*;
 
 import javax.swing.JFrame;
 
+import android.webkit.WebView.FindListener;
+
+import com.aaronncfca.jgrapherandroid.GraphPanel;
+import com.aaronncfca.jgrapherandroid.R;
 import com.aaronncfca.jgrapherandroid.exceptions.*;
 import com.aaronncfca.jgrapherandroid.function.*;
 import com.aaronncfca.jgrapherandroid.pieces.*;
 
 public class Ui {
 
+	
+	
 	public Ui() {
 		inputDevice = new BufferedReader(new InputStreamReader(System.in));
 	}

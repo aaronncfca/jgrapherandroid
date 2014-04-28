@@ -1,8 +1,18 @@
 package com.aaronncfca.jgrapherandroid;
 
+import java.io.IOException;
+
+import com.aaronncfca.jgrapherandroid.exceptions.InputException;
+import com.aaronncfca.jgrapherandroid.pieces.Piece;
+import com.aaronncfca.jgrapherandroid.ui.Processor;
+import com.aaronncfca.jgrapherandroid.function.*;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * An activity representing a list of Items. This activity has different
@@ -27,7 +37,7 @@ public class ItemListActivity extends FragmentActivity implements
 	 * device.
 	 */
 	private boolean mTwoPane;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,7 +55,7 @@ public class ItemListActivity extends FragmentActivity implements
 			((ItemListFragment) getSupportFragmentManager().findFragmentById(
 					R.id.item_list)).setActivateOnItemClick(true);
 		}
-
+		
 		// TODO: If exposing deep links into your app, handle intents here.
 	}
 
@@ -74,4 +84,5 @@ public class ItemListActivity extends FragmentActivity implements
 			startActivity(detailIntent);
 		}
 	}
+	
 }
