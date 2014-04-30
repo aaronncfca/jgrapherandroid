@@ -5,6 +5,7 @@ import com.aaronncfca.jgrapherandroid.function.SingleVarFunction;
 import com.aaronncfca.jgrapherandroid.pieces.Piece;
 import com.aaronncfca.jgrapherandroid.ui.Processor;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -23,7 +24,7 @@ import android.widget.EditText;
  * This activity is mostly just a 'shell' activity containing nothing more than
  * a {@link ItemDetailFragment}.
  */
-public class ItemDetailActivity extends FragmentActivity {
+public class ItemDetailActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,17 +43,6 @@ public class ItemDetailActivity extends FragmentActivity {
 		//
 		// http://developer.android.com/guide/components/fragments.html
 		//
-		if (savedInstanceState == null) {
-			// Create the detail fragment and add it to the activity
-			// using a fragment transaction.
-			Bundle arguments = new Bundle();
-			arguments.putString(ItemDetailFragment.ARG_ITEM_ID, getIntent()
-					.getStringExtra(ItemDetailFragment.ARG_ITEM_ID));
-			ItemDetailFragment fragment = new ItemDetailFragment();
-			fragment.setArguments(arguments);
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.item_detail_container, fragment).commit();
-		}
 
 		final GraphPanel gPanel = (GraphPanel) findViewById(R.id.graphPanel);
 		final Button gBtn = (Button) findViewById(R.id.gButton);
@@ -61,9 +51,7 @@ public class ItemDetailActivity extends FragmentActivity {
 
 			@Override
 			public void onClick(View v) {
-				Piece toReturn = null;
-				String input = null;
-				input = gInput.getText().toString();
+				String input = gInput.getText().toString();
 				try {
 					SingleVarFunction svf = new SingleVarFunction(
 							Processor.ProcessInput(input), "x");
@@ -71,27 +59,8 @@ public class ItemDetailActivity extends FragmentActivity {
 				} catch (InputException e) {
 					e.printStackTrace();
 				}
-				System.out.println(toReturn.toString());
 			}
 			
 		});
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		if (id == android.R.id.home) {
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			NavUtils.navigateUpTo(this,
-					new Intent(this, ItemListActivity.class));
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 }

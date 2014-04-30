@@ -5,6 +5,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,45 +18,89 @@ import com.aaronncfca.jgrapherandroid.ui.FunctionInfo;
 import com.aaronncfca.jgrapherandroid.ui.Point;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.DrawFilter;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Path;
+import android.graphics.Path.FillType;
 import android.util.AttributeSet;
+import android.view.DragEvent;
+import android.view.MotionEvent;
 import android.view.View;
 
 public class GraphPanel extends View {
 
 	public GraphPanel(Context context) {
 		super(context);
-		// TODO Auto-generated constructor stub
+		init();
 	}
 
 	public GraphPanel(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		// TODO Auto-generated constructor stub
+		init();
 	}
 
 	public GraphPanel(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		// TODO Auto-generated constructor stub
+		init();
+	}
+	private float mouseLastX = 0;
+	private float mouseLastY = 0;
+	private boolean pauseInfo;
+	private void init() {
+		initPaint();
+
+		offsetX = (getWidth() + deltaOffsetX) / 2;
+		offsetY = (getHeight() + deltaOffsetY) / 2;
+		zoom = (double) getWidth() / 100 * deltaZoom;
+	}
+	
+	@Override
+	public boolean onDragEvent(DragEvent e) {
+		return false;
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent e) {
+		switch(e.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			mouseLastX = e.getX();
+			mouseLastY = e.getY();
+			break;
+		case MotionEvent.ACTION_UP:
+			break;
+		case MotionEvent.ACTION_MOVE:
+			AdjustOffest((int)(e.getX() - mouseLastX), (int)(e.getY() - mouseLastY));
+			mouseLastX = e.getX();
+			mouseLastY = e.getY();
+			break;
+			
+		}
+		return true;
 	}
 	
 	// Adds deltaX and deltaY to the current offset
 		public void AdjustOffest(int deltaX, int deltaY) {
 			deltaOffsetX += deltaX;
 			deltaOffsetY += deltaY;
+			offsetX = (getWidth() + deltaOffsetX) / 2;
+			offsetY = (getHeight() + deltaOffsetY) / 2;
 			invalidate();
 		}
 		
-		public void SetOffset(int offsetX, int offsetY) {
-			deltaOffsetX = offsetX;
-			deltaOffsetY = offsetY;
+		public void SetOffset(int newOffsetX, int newOffsetY) {
+			deltaOffsetX = newOffsetX;
+			deltaOffsetY = newOffsetY;
+			offsetX = (getWidth() + deltaOffsetX) / 2;
+			offsetY = (getHeight() + deltaOffsetY) / 2;
 			invalidate();
 		}
 		
 		public void SetZoom(double newzoom) {
 			deltaZoom = newzoom;
+			zoom = (double) getWidth() / 100 * deltaZoom;
 			invalidate();
 		}
 		
@@ -67,72 +114,24 @@ public class GraphPanel extends View {
 			infoX = convertFromX(x);
 			invalidate();
 		}
-
-		//FOR REFERENCE ONLY!!!
-		//@Override
-		public void paintComponent(Graphics g) {
-			
-			//super.paintComponent(g);
-			Graphics2D g2 = (Graphics2D) g;
-			g2.setColor(new Color(.1F, .1F, .1F));
-			g2.fillRect(0, 0, getWidth(), getHeight());
-			zoom = (double) getWidth() / 100 * deltaZoom;
-			offsetX = (getWidth() + deltaOffsetX) / 2;
-			offsetY = (getHeight() + deltaOffsetY) / 2;
-			g2.setColor(new Color(.2F, .2F, .2F));
-			drawGrid(g2);
-			g2.setColor(new Color(.7F, .7F, .7F));
-			if(showAxes) {
-				drawLine(g2, convertX(0), false);
-				drawLine(g2, convertY(0), true);
-			}
-			g2.setColor(new Color(.3F, .5F, .3F));
-			showInfo(g2);
-			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g2.setColor(new Color(.3F, .4F, .9F));
-			for(Map.Entry<Integer, FunctionInfo> fn
-					: functions.entrySet()) {
-				fn.getValue().Calculate(getWidth(), getHeight(),
-						offsetX, offsetY,
-						zoom);
-				g2.drawPolyline(fn.getValue().xArray, fn.getValue().yArray, fn.getValue().arrayLength);	
-			}
-			
-		}
-		
-		public Paint p = new Paint();
-		public Path path = new Path();
 		
 		@Override
 		protected void onDraw(Canvas c) {
 			super.onDraw(c);
-			p.setColor(0xCCCC2255);
-			c.drawRect(0, 0, getWidth(), getHeight(), p);
-			zoom = (double) getWidth() / 100 * deltaZoom;
-			offsetX = (getWidth() + deltaOffsetX) / 2;
-			offsetY = (getHeight() + deltaOffsetY) / 2;
-//			g2.setColor(new Color(.2F, .2F, .2F));
-//			drawGrid(g2);
-//			g2.setColor(new Color(.7F, .7F, .7F));
-//			if(showAxes) {
-//				drawLine(g2, convertX(0), false);
-//				drawLine(g2, convertY(0), true);
-//			}
-//			g2.setColor(new Color(.3F, .5F, .3F));
-//			showInfo(g2);
-//			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//			g2.setColor(new Color(.3F, .4F, .9F));
-			p.setColor(0x4466E0);
+			c.drawRect(0, 0, getWidth(), getHeight(), paintBg);
 			for(Map.Entry<Integer, FunctionInfo> fn
 					: functions.entrySet()) {
+				path.rewind();
 				fn.getValue().Calculate(getWidth(), getHeight(),
 						offsetX, offsetY,
 						zoom);
-				for(int i = 0; i < fn.getValue().arrayLength; i++) {
-					path.lineTo(fn.getValue().xArray[i], fn.getValue().yArray[i]);
+				if(fn.getValue().arrayLength>0) {
+					path.moveTo(fn.getValue().xArray[0], fn.getValue().yArray[0]);
+					for(int i = 1; i < fn.getValue().arrayLength; i++) {
+						path.lineTo(fn.getValue().xArray[i], fn.getValue().yArray[i]);
+					}
 				}
-				c.drawPath(path, p);
-				//g2.drawPolyline(fn.getValue().xArray, fn.getValue().yArray, fn.getValue().arrayLength);	
+				c.drawPath(path, paintPath);
 			}
 		}
 		
@@ -210,6 +209,15 @@ public class GraphPanel extends View {
 			return (double) (y - offsetY) / zoom * -1;
 		}
 		
+		private void initPaint() {
+			paintBg.setColor(0xFFCCCCCC);
+			paintPath.setStrokeWidth(2);
+			paintPath.setStyle(Style.STROKE);
+			paintPath.setColor(0xFF2255F0);
+			paintPath.setAntiAlias(true);
+		}
+		
+		
 		private static HashMap<Integer, LinkedList<List<Point>>> lines
 			= new HashMap<Integer, LinkedList<List<Point>>>();
 		
@@ -223,4 +231,7 @@ public class GraphPanel extends View {
 		private double deltaZoom = 1;
 		private double infoX = -1000;
 		private boolean showAxes = true;
+		private Paint paintBg = new Paint();
+		private Paint paintPath = new Paint();
+		private Path path = new Path();
 }
