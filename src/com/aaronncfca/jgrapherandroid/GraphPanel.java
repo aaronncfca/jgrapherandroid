@@ -118,6 +118,9 @@ public class GraphPanel extends View {
 		@Override
 		protected void onDraw(Canvas c) {
 			super.onDraw(c);
+			if(zoom == 0) {
+				init();
+			}
 			c.drawRect(0, 0, getWidth(), getHeight(), paintBg);
 			for(Map.Entry<Integer, FunctionInfo> fn
 					: functions.entrySet()) {
@@ -223,8 +226,8 @@ public class GraphPanel extends View {
 		
 		private static HashMap<Integer, FunctionInfo> functions
 			= new HashMap<Integer, FunctionInfo>();
-		private double zoom = 1.0;
-		private double offsetX = 0; //Set anew each time paintComponent is called
+		private double zoom = 0; //Initialized later
+		private double offsetX = 0; 
 		private double offsetY = 0;
 		private double deltaOffsetX = 0; //Set by user and factored into offsetX/Y
 		private double deltaOffsetY = 0;
