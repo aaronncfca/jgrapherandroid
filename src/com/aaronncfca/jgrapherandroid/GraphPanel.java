@@ -25,13 +25,17 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.Path.FillType;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.view.DragEvent;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class GraphPanel extends View {
 
+	private GestureDetectorCompat mDetector;
+	
 	public GraphPanel(Context context) {
 		super(context);
 		init();
@@ -49,21 +53,32 @@ public class GraphPanel extends View {
 	private float mouseLastX = 0;
 	private float mouseLastY = 0;
 	private boolean pauseInfo;
+	
 	private void init() {
+		mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 		initPaint();
-
 		offsetX = (getWidth() + deltaOffsetX) / 2;
 		offsetY = (getHeight() + deltaOffsetY) / 2;
 		zoom = (double) getWidth() / 100 * deltaZoom;
 	}
 	
-	@Override
-	public boolean onDragEvent(DragEvent e) {
-		return false;
+	class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+		
+		@Override
+		public boolean onDown(MotionEvent event) {
+			return true;
+		}
+		
+		@Override
+		public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+			return true;
+		}
 	}
+	
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
+		
 		switch(e.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			mouseLastX = e.getX();
@@ -76,7 +91,6 @@ public class GraphPanel extends View {
 			mouseLastX = e.getX();
 			mouseLastY = e.getY();
 			break;
-			
 		}
 		return true;
 	}
@@ -85,16 +99,16 @@ public class GraphPanel extends View {
 		public void AdjustOffest(int deltaX, int deltaY) {
 			deltaOffsetX += deltaX;
 			deltaOffsetY += deltaY;
-			offsetX = (getWidth() + deltaOffsetX) / 2;
-			offsetY = (getHeight() + deltaOffsetY) / 2;
+			offsetX = getWidth() / 2 + deltaOffsetX;
+			offsetY = getHeight() / 2 + deltaOffsetY;
 			invalidate();
 		}
 		
 		public void SetOffset(int newOffsetX, int newOffsetY) {
 			deltaOffsetX = newOffsetX;
 			deltaOffsetY = newOffsetY;
-			offsetX = (getWidth() + deltaOffsetX) / 2;
-			offsetY = (getHeight() + deltaOffsetY) / 2;
+			offsetX = getWidth() / 2 + deltaOffsetX;
+			offsetY = getHeight() / 2 + deltaOffsetY;
 			invalidate();
 		}
 		
