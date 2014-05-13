@@ -19,6 +19,8 @@ import com.aaronncfca.jgrapherandroid.ui.Point;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.gesture.GestureLibraries;
+import android.gesture.GestureLibrary;
 import android.graphics.Canvas;
 import android.graphics.DrawFilter;
 import android.graphics.Paint;
@@ -26,51 +28,87 @@ import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.Path.FillType;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.OverScroller;
 
 public class GraphPanel extends View {
 
 	private GestureDetectorCompat mDetector;
+	private OverScroller mScroller;
 	
 	public GraphPanel(Context context) {
 		super(context);
-		init();
+		init(context);
 	}
 
 	public GraphPanel(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
+		init(context);
 	}
 
 	public GraphPanel(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		init();
+		init(context);
 	}
 	private float mouseLastX = 0;
 	private float mouseLastY = 0;
 	private boolean pauseInfo;
 	
-	private void init() {
-		mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+	private void init(Context context) {
+		mDetector = new GestureDetectorCompat(context, new MyGestureListener());
+		mScroller = new OverScroller(context);
+		mScroller.setFriction(0.5f);
+		computeOffset();
+		computeZoom();
 		initPaint();
-		offsetX = (getWidth() + deltaOffsetX) / 2;
-		offsetY = (getHeight() + deltaOffsetY) / 2;
-		zoom = (double) getWidth() / 100 * deltaZoom;
+		
 	}
+	
+	private void computeOffset() {
+		offsetX = getWidth() / 2 + deltaOffsetX;
+		offsetY = getHeight() / 2 + deltaOffsetY;
+		
+	}
+	
+	private void computeZoom() {
+		zoom = (double) getWidth() / 100 * deltaZoom;
+		
+	}
+	
+	private boolean isFlinging = false;
 	
 	class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 		
 		@Override
 		public boolean onDown(MotionEvent event) {
+			mScroller.forceFinished(true);
+			isFlinging = false;
+			ViewCompat.postInvalidateOnAnimation(GraphPanel.this);
+			invalidate();
+			return true;
+		}
+		
+		@Override
+		public boolean onDoubleTap(MotionEvent event) {
+			if(deltaZoom > 1) {
+				SetZoom(1);
+			} else {
+				SetZoom(2);
+			}
 			return true;
 		}
 		
 		@Override
 		public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+			mScroller.forceFinished(true);
+			mScroller.fling(0, 0, (int) velocityX, (int) velocityY, -1000, 1000, -1000, 1000);
+			isFlinging = true;
+			ViewCompat.postInvalidateOnAnimation(GraphPanel.this);
 			return true;
 		}
 	}
@@ -78,7 +116,7 @@ public class GraphPanel extends View {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-		
+		this.mDetector.onTouchEvent(e);
 		switch(e.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			mouseLastX = e.getX();
@@ -99,28 +137,30 @@ public class GraphPanel extends View {
 		public void AdjustOffest(int deltaX, int deltaY) {
 			deltaOffsetX += deltaX;
 			deltaOffsetY += deltaY;
-			offsetX = getWidth() / 2 + deltaOffsetX;
-			offsetY = getHeight() / 2 + deltaOffsetY;
+			computeOffset();
 			invalidate();
 		}
 		
 		public void SetOffset(int newOffsetX, int newOffsetY) {
 			deltaOffsetX = newOffsetX;
 			deltaOffsetY = newOffsetY;
-			offsetX = getWidth() / 2 + deltaOffsetX;
-			offsetY = getHeight() / 2 + deltaOffsetY;
+			computeOffset();
 			invalidate();
 		}
 		
 		public void SetZoom(double newzoom) {
+			deltaOffsetX *= newzoom / deltaZoom;
+			deltaOffsetY *= newzoom / deltaZoom; //Testing
 			deltaZoom = newzoom;
-			zoom = (double) getWidth() / 100 * deltaZoom;
+			computeOffset();
+			computeZoom();
 			invalidate();
 		}
 		
 		public void AdjustZoom(double offsetZoom) {
 			//deltaZoom = 2;
 			deltaZoom = deltaZoom * Math.pow(1.2, offsetZoom); //Not working
+			computeZoom();
 			invalidate();
 		}
 		
@@ -133,7 +173,16 @@ public class GraphPanel extends View {
 		protected void onDraw(Canvas c) {
 			super.onDraw(c);
 			if(zoom == 0) {
-				init();
+				computeZoom();
+				computeOffset();
+			}
+			if(isFlinging) {
+				if(!mScroller.computeScrollOffset()) {
+					isFlinging = false;
+				}
+				deltaOffsetX += mScroller.getCurrX();
+				deltaOffsetY += mScroller.getCurrY();
+				computeOffset();
 			}
 			c.drawRect(0, 0, getWidth(), getHeight(), paintBg);
 			for(Map.Entry<Integer, FunctionInfo> fn
@@ -149,6 +198,9 @@ public class GraphPanel extends View {
 					}
 				}
 				c.drawPath(path, paintPath);
+			}
+			if(isFlinging) {
+				ViewCompat.postInvalidateOnAnimation(GraphPanel.this);
 			}
 		}
 		
